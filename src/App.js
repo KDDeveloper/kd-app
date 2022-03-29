@@ -6,11 +6,14 @@ import AboutPage from './pages/aboutPage/aboutPage';
 import HomePage from './pages/homePage/homePage';
 import ProjectsPage from './pages/projectsPage/projectsPage';
 import SkillsPage from './pages/skillsPage/skillsPage';
-
+import {Helmet} from "react-helmet";
 function App() {
   
   return (
     <div className="App">
+      <Helmet>
+        <title>KD Web Developer</title>
+      </Helmet>
       <Router>
         <Routes>
           <Route path="/" element={<Navigate to="/kd/home"/>} />
