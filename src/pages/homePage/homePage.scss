@@ -14,10 +14,15 @@
             position: absolute;
             top:-50vh;
             right: 0vh;
-            height: 700px;
-            width: 700px;
+            height: 80vh;
+            width: 100%;
             // left:-20vh;
         }
+        
+        @media screen and (max-width:700px) {
+            display: none;
+        }
+
     }
 
     .intro-container{

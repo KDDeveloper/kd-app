@@ -33,12 +33,12 @@ const SkillsPage = ()=>{
         },
         {
             skillName:"React",
-            progress:80,
+            progress:86,
             ref:reactProgress
         },
         {
             skillName:"Node js",
-            progress:80,
+            progress:86,
             ref:nodejsProgress
         },
     ]
