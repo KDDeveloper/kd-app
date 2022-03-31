@@ -6,7 +6,7 @@ const ProjectsPage = () =>{
     const projects = [{
         name:"Nuva",
         img:`${require("../../resources/images/nuvaSS.png")}`,
-        link:"https://condescending-lamport-d51835.netlify.app/",
+        link:"https://n-y-f.netlify.app",
         github:"https://github.com/KDDeveloper/new-nuva-app"
     },{
         name:"CRM",
