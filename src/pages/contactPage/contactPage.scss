@@ -4,6 +4,7 @@
     align-items: center;
     flex-wrap: wrap; 
     height: 90vh;
+    // margin-bottom: 30px;
 
     .contact-box {
         height: 250px;
@@ -16,6 +17,7 @@
         justify-content: center;
         color: #151516;
         margin: 20px;
+
         
         svg{
             fill: #1B86BC;
@@ -24,5 +26,9 @@
             margin: 30px;
         }
         
+    }
+
+    @media screen and (max-width:700px) {
+        height: 100%;
     }
 }

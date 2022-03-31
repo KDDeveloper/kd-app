@@ -10,12 +10,7 @@
     margin-top: 80px;
     color:#151616;
 
-    @media screen and (max-width:500px) {
-       flex-direction: column-reverse;
-       overflow-x: hidden;
-       align-items: center;
-       margin-top: 0px;
-      }
+    
 
     .about-content{
         display: flex;
@@ -29,6 +24,8 @@
         @media screen and (max-width:500px) {
             margin-left: 0px;
             margin-right: 30px;
+            margin-bottom: 30px;
+            height: 100%;
         }
 
         h2{
@@ -64,13 +61,25 @@
             width: 62vh;  
             justify-content: center;
             align-items: center; 
+            overflow-x: hidden;
             // top:-20vh; 
 
             img{
                 top: 0px ;
+                height: 100%;
+                width: 100%;
+                overflow-x: hidden;
             }
           }
     }
+    
+    @media screen and (max-width:500px) {
+        flex-direction: column-reverse;
+        align-items: center;
+        margin-top: 0px;
+        margin-bottom: 30px;
+        overflow-x: hidden;
+       }
 
 }
 
