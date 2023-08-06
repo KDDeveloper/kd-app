@@ -14,16 +14,20 @@ const ContactPage = () =>{
                 </h3>
             </div>
             <div className="contact-box">
-                <PhoneIphone/>
-                <h3>
-                    7977980995
-                </h3>
+                <a href="tel:7977980995">
+                    <PhoneIphone/>
+                    <h3>
+                        7977980995
+                    </h3>
+                </a>
             </div>
             <div className="contact-box">
-                <Email/>
-                <h3>
-                    kddfreelance@gmail.com
-                </h3>
+               <a href="mailto:kddfreelance@gmail.com">
+                    <Email/>
+                    <h3>
+                        kddfreelance@gmail.com
+                    </h3>
+                </a>
             </div>
 
         </div>
