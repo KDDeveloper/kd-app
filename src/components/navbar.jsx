@@ -9,22 +9,22 @@ import { Menu } from "@mui/icons-material";
 const navbarOptions = [
     {
         optionName:"About me",
-        optionLink:"/kd/about",
+        optionLink:"/about",
         key:1
     },
     {
         optionName:"My skills",
-        optionLink:"/kd/skills",
+        optionLink:"/skills",
         key:2
     },
     {
         optionName:"Projects",
-        optionLink:"/kd/projects",
+        optionLink:"/projects",
         key:3
     },
     {
         optionName:"Hire me!",
-        optionLink:"/kd/contact",
+        optionLink:"/contact",
         key:4
     }
 ]
@@ -50,7 +50,7 @@ const Navbar = ()=>{
     }
 
     useEffect(()=>{
-        if(pathName==="/kd/home"){
+        if(pathName==="/"){
             gsap.from(menuRefs.current,{stagger:0.3,yPercent:-300,delay:6,ease:"power3.easeIn"});
         }
     },[])
@@ -59,7 +59,7 @@ const Navbar = ()=>{
         <>
             <div className="navbar">
                 <div className="nav-op" id="nav-logo" ref={addMenuRef}>
-                   <RouterLink to="/kd/home"> <img src={kdLogo}/></RouterLink>
+                   <RouterLink to="/"> <img src={kdLogo}/></RouterLink>
                 </div>
                 <div className="nav-options">
                     <ul>
