@@ -16,9 +16,9 @@ function App() {
       </Helmet>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/kd/home"/>} />
-          <Route path="/kd" element={<Navbar/>} >
-            <Route path="home" element={<HomePage/>} />
+          // <Route path="/" element={<Navigate to="/kd/home"/>} />
+          <Route path="/" element={<Navbar/>} >
+            <Route index element={<HomePage/>} />
             <Route path="about" element={<AboutPage/>} />
             <Route path="skills" element={<SkillsPage/>} />
             <Route path="projects" element={<ProjectsPage/>} />
