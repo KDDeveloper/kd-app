@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import { useLocation } from "react-router-dom"
 import "./skillsPage.scss";
 import Lottie from "lottie-web";
 import brainLottie from "../../resources/lotties/brainLevel.json";
@@ -8,12 +9,15 @@ import AnimatedNumber from "react-animated-number";
 
 
 const SkillsPage = ()=>{
+    const location = useLocation();
     let lottieRef = useRef(null);
     let HTMLProgress = useRef(null);
     let CSSProgress = useRef(null);
     let vjProgress = useRef(null);
     let reactProgress = useRef(null);
     let nodejsProgress = useRef(null);
+    let ShopifyProgress = useRef(null);
+    let ClaudeAIProgress = useRef(null);
 
     const skills = [
         {
@@ -28,18 +32,28 @@ const SkillsPage = ()=>{
         },
         {
             skillName:"Vanilla javascript",
-            progress:87,
+            progress:95,
             ref:vjProgress
         },
         {
             skillName:"React",
-            progress:86,
+            progress:95,
             ref:reactProgress
         },
         {
             skillName:"Node js",
-            progress:86,
+            progress:96,
             ref:nodejsProgress
+        },
+        {
+            skillName:"Shopify",
+            progress:80,
+            ref:ShopifyProgress
+        },
+        {
+            skillName:"Claude AI",
+            progress:90,
+            ref:ClaudeAIProgress
         },
     ]
     useEffect(()=>{
@@ -58,7 +72,9 @@ const SkillsPage = ()=>{
         gsap.from(vjProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
         gsap.from(reactProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
         gsap.from(nodejsProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-    },[])
+        gsap.from(ShopifyProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
+        gsap.from(ClaudeAIProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
+    },[location])
 
     return(
         <>
@@ -74,10 +90,9 @@ const SkillsPage = ()=>{
                                 <AnimatedNumber
                                     value={el.progress}
                                     duration={2400}
-                                    formatValue={n=>n.toFixed(0)}
-                                    style={{transition:"1s ease-out"}}
-
-                                className="skill-number"/>
+                                    stepPrecision={0}
+                                    formatValue={n => isNaN(n) ? "0" : n.toFixed(0)}
+                                    className="skill-number"/>
                             </div>
                             <div className="skill-bar">
                                 <div className="skill-bar-rect" style={{width:`${el.progress+''}%`}} ref={el.ref}></div>

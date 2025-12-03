@@ -26,15 +26,16 @@
             margin-right: 30px;
             margin-bottom: 30px;
             height: 100%;
+            width: 80%;
         }
 
         h2{
-            font-size: 55px;
+            font-size: 40px;
             margin-bottom: 30px;
         }
 
         p{
-            font-size: 18px;
+            font-size: 16px;
             font-weight: normal;
         }
     }
@@ -57,8 +58,8 @@
         }
 
         @media screen and (max-width:500px) {
-            height: 62vh;
-            width: 62vh;  
+            height: 40vh;
+            width: 80vw;
             justify-content: center;
             align-items: center; 
             overflow-x: hidden;
