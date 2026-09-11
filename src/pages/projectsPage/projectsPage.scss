@@ -1,33 +1,33 @@
 .projects-page-container{
     font-family: oswald;
-    padding:40px 0px 0px 100px;
+    // was `padding: 40px 0 0 100px` with no right side, so a grid that stretches
+    // would run straight off the edge
+    padding: 40px 100px 60px;
     color: #151616;
-    height: 90vh;
-    
+    // was a fixed 90vh, which would start clipping cards as the list grows
+    min-height: 90vh;
+
+    // A grid rather than wrapped flex. `justify-content: space-around` was what
+    // stranded a lone card in the centre of the last row, and `height: 100%`
+    // inside a 90vh page was what spread the rows apart with a gulf between
+    // them. Auto-fill columns stay correct at any number of projects.
     .projects-container{
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;        
-        height: 100%;   
-        @media screen and (max-width:700px) {
-            justify-content: flex-start;
-        }
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 32px;
     }
     
-    h1{
-        font-size: 50px;
-        margin-bottom: 20px;
-    } 
-
     a{
         text-decoration: none;
         color: inherit;
     }
 
     .project{
-        height: 250px;
-        width: 300px;
-        padding: 10px 10px 10px 10px;
+        // min-height rather than height, so a description can be added without
+        // being clipped. Grid rows equalise the cards anyway.
+        min-height: 250px;
+        width: 100%;
+        padding: 10px;
         border-radius: 10px;
         border: 1px solid #D1B704;
         position: relative;
@@ -35,27 +35,63 @@
         justify-content: space-between;
         align-items: center;
         flex-direction: column;
-        margin: 20px;
+        background-color: #FFDE00;
+        transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+
+        // the card looks clickable, so it should be clickable - see the
+        // stretched link on .visit-btn below
+        &:hover{
+            transform: translateY(-4px);
+            border-color: #1B86BC;
+            box-shadow: 0 6px 18px rgba(21, 22, 22, 0.18);
+        }
 
         .project-img{
-            // position: absolute;
-            height: 100%;
-                width: 100%;
+            flex: 1 1 auto;
+            width: 100%;
+            min-height: 140px;
             border-radius: 10px;
             background-color: white;
-            // margin-top: 10px;
             img{
                 height: 100%;
                 width: 100%;
                 border-radius: 10px;
                 object-fit: contain;
             }
+        }
 
-            @media screen and (max-width:500px) {
-                height: 100%;
-                width: 100%;
+        .project-description{
+            font-size: 14px;
+            line-height: 1.45;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .project-tags{
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+
+            li{
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                padding: 2px 8px;
+                border-radius: 3px;
+                background-color: #1B86BC;
+                color: #FFDE00;
             }
-            
+        }
+
+        // For logos that ship with a dark block baked in rather than a
+        // transparent background: the panel matches the artwork so the tile
+        // reads as one shape instead of a black rectangle sat on white. Has to
+        // come after .project-img or its white background wins on source order.
+        .project-img.project-img-dark{
+            background-color: #121212;
         }
 
         .project-buttons{
@@ -75,10 +111,22 @@
                     border-radius: 5px;
                     color: #1B86BC;
                     transition: all 200ms ease-in;
-                    &:hover{
-                        color: #ffde00;
-                        background-color: #1B86BC;
+
+                    // stretched link: the button stays the visible affordance
+                    // but the hit area is the whole card, instead of a 90x35
+                    // target inside 300x250 of dead space
+                    &::after{
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        border-radius: 10px;
                     }
+                }
+
+                // the button fills on card hover, not just its own
+                .project:hover & a{
+                    color: #ffde00;
+                    background-color: #1B86BC;
                 }
 
                 @media screen and (max-width:500px) {
@@ -96,6 +144,9 @@
                 height: 35px;
                 width: 90px;
                 margin-top: 10px;
+                // sits above the stretched link so it stays separately clickable
+                position: relative;
+                z-index: 1;
                 background-color: #151616;
                 border-radius: 5px;
                 color: #ffde00;
@@ -137,16 +188,13 @@
             }
         }
 
-        @media screen and (max-width:500px) {
-            height: 250px;
-            width: 300px;
-        }
     }
+
     @media screen and (max-width:700px) {
-        padding: 10px 10px 10px 30px;
-        height: 100%;
-        h1{
-            margin-bottom: 50px;
+        padding: 20px 30px 40px;
+
+        .projects-container{
+            gap: 24px;
         }
     }
 }

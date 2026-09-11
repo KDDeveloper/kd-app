@@ -1,6 +1,11 @@
 .homepage-container{
     // margin-top: 200px;
     background: #FFDE00;
+    // The blob's svg is deliberately wider than the composition box so the blob
+    // can grow without touching the physics constants. The extra is transparent
+    // padding around the circle, but it still pushed a horizontal scrollbar.
+    // clip rather than hidden, so the figure can still overhang the bottom.
+    overflow-x: clip;
     height: 80vh;
     width: 100%;
     display: flex;
@@ -8,21 +13,108 @@
     align-items: center;
 
     .graphics-container{
-        width: 40%;
+        width: 46%;
         position: relative;
-        svg{
+
+        // The whole hero graphic lives in this one box and everything inside is
+        // sized as a percentage of it, so the three parts scale together.
+        //
+        // They used to be sized off three different bases - the blob from
+        // min(container width, 80vh), the figure from 72vh, the hint from a mix
+        // of vh and vw - so they only agreed at the one window size they were
+        // tuned at. Measured across the range, the figure grew from 1.1x to 2.6x
+        // the blob's width as the window narrowed, and the hint overlapped the
+        // blob at every desktop size.
+        .hero-composition{
             position: absolute;
-            top:-50vh;
-            right: 0vh;
-            height: 80vh;
-            width: 100%;
-            // left:-20vh;
-        }
-        
-        @media screen and (max-width:700px) {
-            display: none;
+            // pulled in off the right edge. Everything inside is positioned
+            // against this box, so this one offset moves the blob, the figure
+            // and the hint together.
+            right: 18%;
+            // sits on the bottom edge of the screen, so the figure is cropped by
+            // the page rather than floating with its bottom lopped off. The
+            // container is a zero height flex item at navbar (130px) plus half
+            // the 80vh hero, so the viewport bottom is 60vh less that 130px.
+            bottom: calc(-60vh + 130px);
+            // As wide as the column allows, but capped by height. The box is
+            // 1.1x its width tall, and now the blob is larger the hint sits
+            // higher, overhanging to about 1.21w above the bottom. Solving for
+            // the room needed between the navbar and the bottom of the screen
+            // is where 82vh - 128px comes from - without it the hint climbs
+            // into the nav links on short windows.
+            width: min(100%, calc(82vh - 128px));
+            aspect-ratio: 1 / 1.1;
+            // lets the hint size itself against this box instead of the viewport
+            container-type: inline-size;
         }
 
+        // The svg is a square viewBox with the blob drawn at 73% of it. Scaling
+        // the svg past the composition box is how the blob grows without
+        // touching the physics constants - the alternative, raising RADIUS in
+        // interactiveBlob.jsx, would push the blob past MAX_RADIUS and clip it
+        // against the viewBox. The negative offsets keep its centre where it
+        // was: -10.4% of the width, and -9.5% of a box that is 1.1x as tall.
+        .interactive-blob{
+            position: absolute;
+            top: -9.5%;
+            left: -10.4%;
+            width: 120.8%;
+            height: auto;
+            aspect-ratio: 1;
+            // the blob tracks the pointer on window, so it never needs to catch
+            // events itself - and this keeps it off the intro text
+            pointer-events: none;
+        }
+
+        // Stands in front of the blob. pointer-events stays off so the blob
+        // keeps reacting through it - the blob tracks pointermove on window and
+        // converts to svg coordinates, so it does not care what is layered on
+        // top, only that nothing swallows the event.
+        .hero-portrait{
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            // the blob renders at 73% of this box, so at 85% the figure is
+            // wider than the disc and breaks past it on both sides
+            width: 85%;
+            height: auto;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        // above and left of the blob, words first and the arrow hooking down
+        // out of them towards it
+        .play-hint{
+            position: absolute;
+            left: 0;
+            // follows the blob's top edge, which moved up when the blob grew
+            bottom: 96%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            color: #151616;
+            pointer-events: none;
+            transform: rotate(-4deg);
+            z-index: 3;
+
+            // cqw is a percentage of .hero-composition's width, so the hint
+            // shrinks with the graphic instead of staying at a fixed size and
+            // swallowing the blob on smaller screens
+            .play-hint-text{
+                font-family: blackpine;
+                font-size: 6.4cqw;
+                line-height: 1;
+                white-space: nowrap;
+            }
+
+            .curved-arrow{
+                width: 11.8cqw;
+                height: 9.4cqw;
+                flex: none;
+                margin-left: 2.7cqw;
+            }
+        }
     }
 
     .intro-container{
@@ -31,7 +123,18 @@
         
 
         h1{
-            font-size: 55px;
+            // The figure is the hero, so the headline stays just under the blob
+            // rather than competing with it. Sized against the blob itself, not
+            // the composition box: the box carries transparent padding, so the
+            // circle you actually see is only 73% of it, and matching the box
+            // still left the text 1.23x the blob.
+            //
+            // A line runs about 8x the font size wide, the box is capped at
+            // min(46vw, 85vh - 120px), and the blob is 0.73 of that - which
+            // works out to the multipliers below for a text block at ~90% of
+            // the blob. The vh half matters: without it the headline keeps
+            // growing on short wide windows where the blob cannot.
+            font-size: clamp(40px, min(4.55vw, 8.1vh - 12.6px), 82px);
             text-transform: uppercase;
             font-family: oswald;
             font-weight: normal;
@@ -46,7 +149,9 @@
       
 
         .intro-rectangle{
-            width: 100%;
+            // hugs the last line rather than the whole text block, with a 20px
+            // bleed to the left and a bit of breathing room past the full stop
+            width: calc(100% + 62px);
             height: 120%;
             background-color: #1B86BC;
             position: absolute;
@@ -63,12 +168,170 @@
             color: #FFDE00;
             position: relative;
            z-index: 1;
-           width: 100%;
+           // shrink to the text, so the slab above can size itself off the last
+           // line instead of the longest one
+           width: fit-content;
         }
     }
 
-    @media screen and (max-width:500px) {
-        height: 80vh;      
+    // Tablet: the graphic keeps its place beside the text and simply scales
+    // down. Because everything is a percentage of .hero-composition, that is one
+    // width change rather than a matching set of overrides for each part.
+    @media screen and (min-width:1025px) and (max-width:1200px) {
+
+        .intro-container{
+            // dropped down the page so it balances against the larger figure
+            transform: translateY(6vh);
+
+            h1{
+                font-size: clamp(34px, 4.2vw, 50px);
+            }
+        }
+
+        .graphics-container{
+            width: 44%;
+
+            .hero-composition{
+                // the hint sits higher again now the blob is bigger, so it
+                // needs more clear room above the composition
+                width: min(100%, calc(78vh - 121px));
+            }
+
+            // the figure fills the composition here rather than the 85% it
+            // takes on desktop
+            .hero-portrait{
+                width: 100%;
+            }
+
+            // scaled to keep the same figure-to-blob relationship as desktop
+            // (0.96), which works out at 142% of the box
+            .interactive-blob{
+                width: 142.1%;
+                left: -21.05%;
+                top: -19.1%;
+            }
+
+            .play-hint{
+                bottom: 103%;
+            }
+        }
+      }
+
+    // Tablet and phone: one stacked composition with the headline laid over the
+    // figure, rather than two columns squeezed side by side or a figure parked
+    // below the text. This is the magazine cover device - type crossing a
+    // cut-out subject, with the head breaking above the type so the overlap
+    // reads as depth instead of a flat sticker. It also uses the height a tall
+    // screen actually has, which side by side never could.
+    //
+    // Both layers are placed in the same grid cell, so the row is as tall as the
+    // composition and the headline can be aligned against its bottom edge.
+    @media screen and (max-width:1024px) {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        // bottom aligned so the figure's crop lands on the screen edge. Centred,
+        // it read as a hard horizontal cut through the middle of the page.
+        align-content: end;
+        height: auto;
+        min-height: calc(100vh - 130px);
+        padding: 16px 0 0;
+        // the blob's svg is scaled to 142%, so it hangs below the composition by
+        // about 0.11 of its width. That overhang is transparent but it was
+        // adding scrollable height, and here the figure ends at the hero's
+        // bottom edge so there is nothing real to clip.
+        overflow: clip;
+
+        // the navbar is shorter on phones, so the hero has more room to fill
+        @media screen and (max-width:700px) {
+            min-height: calc(100vh - 100px);
+        }
+
+        .graphics-container{
+            grid-area: 1 / 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            // without this the intentionally oversized composition sets the
+            // grid column's min-content width, widening the column past the
+            // viewport - which then stretched the title block past it too
+            min-width: 0;
+
+            .hero-composition{
+                position: relative;
+                right: auto;
+                bottom: auto;
+                // must not shrink to fit, or the overhang below is cancelled
+                flex: none;
+                // allowed past the viewport width on narrow screens so the
+                // figure is tall enough to reach the bottom. The overhang is
+                // the outer edge of the arms, cropped by the screen the way a
+                // printed poster would - overflow-x: clip on the hero keeps it
+                // from producing a scrollbar.
+                width: min(104vw, 60vh);
+            }
+
+            .hero-portrait{
+                width: 110%;
+            }
+
+            .interactive-blob{
+                width: 142.1%;
+                left: -21.05%;
+                top: -19.1%;
+            }
+
+            .play-hint{
+                bottom: 103%;
+                // the composition runs wider than the screen here, so its left
+                // edge is off canvas - this brings the hint back into view
+                left: 6%;
+            }
+        }
+
+        // The desktop treatment - four lines with the slab under the last one -
+        // laid over the figure. Both the text block and the composition are
+        // centred, which is what was missing the first time round: the type was
+        // aligned to the viewport while the figure was centred in its own box,
+        // so nothing lined up and it read as floated rather than placed.
+        //
+        // Capped narrower than the figure so every line lands fully on the
+        // jacket and tee. Lines that start on yellow and end on the figure are
+        // what made the earlier attempt look accidental.
+        .intro-container{
+            grid-area: 1 / 1;
+            align-self: end;
+            justify-self: center;
+            // scaled with the figure, so the type keeps the same inset inside it
+            width: min(88vw, 57vh);
+            transform: none;
+            // sits across the torso, clear of the face above and the crop below
+            margin-bottom: 12vh;
+            // over the figure, which sits at 2
+            z-index: 4;
+
+            h1{
+                // the vh half matters: the column above is capped by height as
+                // well as width, and on a short landscape tablet the type hit
+                // its 52px ceiling in a 399px column and wrapped mid-name
+                font-size: clamp(33px, min(8.1vw, 6.6vh), 57px);
+                // opened up from 1.08 so the lines breathe and the slab has room
+                // to sit around its word rather than crowding the line below
+                line-height: 1.34;
+                margin-left: 0;
+                // near black holds up over both the yellow jacket and the tee
+                color: #151616;
+            }
+
+            // Sized and centred on the word rather than the full line box. At
+            // 120%/top:0 it was anchored to the top of the box and hung 20%
+            // below it, which is why it looked low against the text. Equal top
+            // and bottom values are what centre it: (100 - height) / 2.
+            .intro-rectangle{
+                height: 86%;
+                top: 7%;
+            }
+        }
       }
 
 }

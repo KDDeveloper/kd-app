@@ -26,6 +26,30 @@ export const GithubIcon = ()=>{
     )
 }
 
+// Deliberately uneven curve and a slightly lopsided head, so it reads as drawn
+// by hand rather than plotted.
+export const CurvedArrow = ()=>{
+    return(
+        <>
+            <svg className="curved-arrow" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 6C15 28 24 47 41 59C56 70 74 77 96 84"
+                    stroke="currentcolor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                />
+                <path
+                    d="M96 84L85 72M96 84L80 87"
+                    stroke="currentcolor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </svg>
+        </>
+    )
+}
+
 export const Blob = ()=>{
     return(
         <>

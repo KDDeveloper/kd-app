@@ -1,26 +1,31 @@
+// The column used to be pinned to 330px while the brain took 50% of the screen,
+// which left a 445px hole down the middle. Capping the row and letting both
+// sides grow closes the gap instead of moving it somewhere else.
 .skills-page-container{
     display: flex;
     justify-content: space-between;
-    padding:60px 0px 0px 100px;
+    align-items: center;
+    gap: 60px;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 60px 100px 80px;
+
 .skills-container{
     font-family: oswald;
     color: #151616;
-    width: 330px;
-    
-    
-    h1{
-        font-size: 50px;
-    }
+    flex: 1 1 560px;
+    max-width: 600px;
+
 
     #note{
-        margin-top: 20px;
+        margin-top: 24px;
         font-weight: 800;
     }
 
     .skill{
-        width: 330px;
+        width: 100%;
         margin-top: 25px;
-        
+
         .skill-content-container{
             display: flex;
             justify-content: space-between;
@@ -50,11 +55,6 @@
 
             }
 
-            // .br3{
-            //     position: relative;
-            //     left: 10px;
-            // }
-
             .skill-bar-rect{
                 height: 10px;
                 width:90%;
@@ -66,28 +66,41 @@
         }
     }
 
-    @media screen and (max-width:700px) {
-        h1{
-            font-size: 40px;
-        }
-    }
 }
 
     .skills-image{
-        width: 50%;
-        height: 480px;
+        flex: 0 1 560px;
+        max-width: 560px;
+        height: 520px;
 
         @media screen and (max-width:700px) {
             display: none;
         }
     }
 
-    @media screen and (max-width:700px) {
-        padding: 10px 10px 10px 30px;
+    // Tablet: stack rather than squeeze two columns into a width that cannot
+    // hold them, with the brain on top the way the about page does it.
+    @media screen and (max-width:1000px) {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 32px;
+        padding: 40px 56px 60px;
 
+        .skills-container{
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .skills-image{
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 340px;
+            height: 340px;
+        }
     }
 
-    @media screen and (max-width:800px) {
-        padding: 10px 10px 10px 30px;
+    @media screen and (max-width:700px) {
+        padding: 24px 30px 40px;
     }
 }

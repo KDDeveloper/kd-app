@@ -21,12 +21,90 @@ html,body{
   width: 100%;
   background-color: #FFDE00;
 }
+// Homepage entrance for the navbar. fill-mode backwards is the important part:
+// the resting state of these elements is the visible one, and the keyframes only
+// borrow the off screen position for the length of the animation. If the
+// animation never runs the menu is simply where it belongs, which is what a
+// gsap.from() cannot promise.
+@keyframes nav-drop{
+  from { transform: translateY(-300%); }
+  to   { transform: translateY(0); }
+}
+
+// Held off screen for the six second wait. This is a static class toggled by
+// react state, not an animation, so it cannot get stuck part way like a frozen
+// tween can - the timer that clears it keeps running even in a background tab.
+.navbar.nav-waiting{
+  #nav-logo,
+  .nav-options ul a{
+    transform: translateY(-300%);
+  }
+}
+
+// Applied at the moment the drop in should play. Only the stagger lives here.
+.navbar.nav-intro{
+  // matches the old gsap timing: 0.3s stagger, power3 ease in
+  #nav-logo,
+  .nav-options ul a{
+    animation: nav-drop 0.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) backwards;
+  }
+
+  // logo leads and the options follow, the order the old stagger ran in
+  .nav-options ul a{
+    animation-delay: 0.3s;
+
+    &:nth-child(2){ animation-delay: 0.6s; }
+    &:nth-child(3){ animation-delay: 0.9s; }
+    &:nth-child(4){ animation-delay: 1.2s; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar.nav-waiting #nav-logo,
+  .navbar.nav-waiting .nav-options ul a{
+    transform: none;
+  }
+  .navbar.nav-intro #nav-logo,
+  .navbar.nav-intro .nav-options ul a{
+    animation: none;
+  }
+}
+
+// Shared page heading - see components/pageHeading.jsx. Defined once here so
+// About, Skills and Projects cannot drift apart again.
+.page-heading{
+  font-family: oswald;
+  font-size: 56px;
+  font-weight: normal;
+  text-transform: uppercase;
+  line-height: 1;
+  color: #151616;
+  margin-bottom: 36px;
+
+  .page-heading-slab{
+    background: #1B86BC;
+    color: #FFDE00;
+    padding: 0 14px 4px;
+    display: inline-block;
+  }
+
+  @media screen and (max-width:700px) {
+    font-size: 40px;
+    margin-bottom: 24px;
+  }
+}
+
 .navbar{
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   background: #FFDE00;
+  // the hover brackets are positioned with a 20px translate, so on the last nav
+  // item they hang past the right edge and give the whole site a horizontal
+  // scrollbar around the 800px mark. clip contains them without creating a
+  // scroll container the way overflow:hidden would.
+  overflow-x: clip;
 
  
 
@@ -127,85 +205,154 @@ html,body{
  
 }
 
-.mobile-menu{
-  width: 50vw;
-  height: 100%;
+// Dims the page behind the circle. Clicking it falls through to the outside
+// click handler in navbar.jsx, which closes the menu.
+.circle-backdrop{
+  position: fixed;
+  inset: 0;
+  background-color: rgba(21, 22, 22, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 98;
+  display: none;
+  transition: opacity 320ms ease-out;
+
+  @media screen and (max-width:700px) {
+    display: block;
+  }
+}
+
+.circle-backdrop-open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+// The disc. Its centre is pinned to the menu button and it scales up from
+// nothing, so it inflates out of the button rather than sliding in from an edge.
+// Replaces MUI's SwipeableDrawer - which also means the swipe-from-edge gesture
+// is gone, deliberately.
+//
+// Big enough that the part of it on screen is a broad curve across the upper
+// area rather than a small disc, which leaves room for a properly aligned column
+// of links to sit inside it.
+.circle-menu{
+  // Large enough that the disc's edge clears the top of the link column. At
+  // 235vw the curve cut diagonally through the topmost link, leaving half of it
+  // sitting on the yellow outside the circle.
+  --size: min(290vw, 133vh);
+
+  position: fixed;
+  // matches the centre of .menu-btn: its 20px offset plus half its 48px width.
+  // translate(50%, 50%) then puts this element's own centre on that point, and
+  // because translate percentages resolve against the unscaled size, the centre
+  // stays put at every scale.
+  right: 44px;
+  bottom: 44px;
+  width: var(--size);
+  aspect-ratio: 1;
+  border-radius: 50%;
   background-color: #1B86BC;
-  color: #FFDE00;
-  padding-top: 20px;
+  display: none;
+  z-index: 98;
+  transform: translate(50%, 50%) scale(0);
+  transform-origin: 50% 50%;
+  // visibility is delayed on the way out so the circle can finish deflating
+  visibility: hidden;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 420ms;
 
-  ul{
+  @media screen and (max-width:700px) {
+    display: block;
+  }
+}
+
+.circle-menu-open{
+  transform: translate(50%, 50%) scale(1);
+  visibility: visible;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+}
+
+// The links are a plain aligned column, not points on the rim. Placed on the
+// rim they form a diagonal stair - across five items the arc travels a couple of
+// hundred pixels sideways, which leaves a wedge of empty circle above the top
+// link and below the bottom one. Narrowing the arc to close those wedges
+// collapses the vertical spacing instead. A shared left edge and one gap value
+// is the only way both readings come out even.
+.circle-links{
+  position: fixed;
+  left: 9vw;
+  bottom: 13vh;
+  list-style: none;
+  display: none;
+  // reversed so the first item sits nearest the button it came out of
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: clamp(24px, 3.4vh, 36px);
+  z-index: 99;
+  // nothing to catch taps while the menu is shut
+  pointer-events: none;
+
+  @media screen and (max-width:700px) {
     display: flex;
-    flex-direction: column;
-    position: relative;
-    // justify-content: space-around;
-    gap: 50px;
-    align-items: center;
-    list-style: none;
-    height: 50%;
-    
+  }
 
+  a{
+    font-family: oswald;
+    // bigger than a desktop nav item - this is the only thing on screen when
+    // the menu is open, and at 23px it left the disc looking mostly empty
+    font-size: clamp(24px, 8vw, 38px);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: #FFDE00;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-14px);
+    transition: opacity 220ms ease-out, transform 220ms ease-out;
+
+    // absolutely positioned so they claim no layout width - visibility:hidden
+    // still reserves space, which would pad every link by about 40px
     svg{
-      transition: all 200ms ease-in;
-    }
-    .left-bracket{
-    
-      height: 20px;
-      width: 20px;
+      position: absolute;
+      top: 50%;
+      height: 16px;
+      width: 16px;
+      fill: currentcolor;
       visibility: hidden;
       opacity: 0;
-      transform: translate(-20px,8px);
-    }
-    .right-bracket{
-      height: 20px;
-      width: 20px;
-    transform: translate(20px,8px);
-    visibility: hidden;
-      opacity: 0;
-    
-    }
-
-    
-
-    a{
-      text-decoration: none;
-      color: #151616;
-      display:flex;
-      position: relative;
-      width: fit-content;
       transition: all 200ms ease-in;
-
-      &:hover .right-bracket{
-        transform: translate(0px,6px);
-        visibility: visible;
-        opacity: 1;
-        transition: all 200ms ease-in;
-      }
-      &:hover .left-bracket{
-        transform: translate(0px,6px);
-        visibility: visible;
-        opacity: 1;
-        transition: all 200ms ease-in;
-      }
-      
     }
 
-    li{
-      font-family: oswald;
-      color: #FFDE00;
-      display: flex;
-      font-size: 18px;
-      transition: all 200ms ease-in;
-      // position: absolute;
-    }
+    .left-bracket{ right: 100%; transform: translate(-4px, -50%); }
+    .right-bracket{ left: 100%; transform: translate(4px, -50%); }
+
+    &:hover .left-bracket{ visibility: visible; opacity: 1; transform: translate(-10px, -50%); }
+    &:hover .right-bracket{ visibility: visible; opacity: 1; transform: translate(10px, -50%); }
+  }
+}
+
+.circle-links-open{
+  pointer-events: auto;
+
+  a{
+    opacity: 1;
+    transform: none;
+    // the links only begin arriving once the disc has most of its size
+    transition-delay: calc(240ms + var(--i) * 70ms);
   }
 }
 
 .menu-btn{
   background-color: #1B86BC !important;
+  // sized explicitly rather than left to MUI's 40px default, so the circle's
+  // centre offset above is derived from a value defined here
+  width: 48px;
+  height: 48px;
   position: fixed !important;
-  right: 8vh;
-  bottom:5vh;
+  right: 20px;
+  bottom: 20px;
   z-index: 100;
   display: none !important;
 

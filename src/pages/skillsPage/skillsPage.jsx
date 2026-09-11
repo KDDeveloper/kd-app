@@ -5,82 +5,90 @@ import Lottie from "lottie-web";
 import brainLottie from "../../resources/lotties/brainLevel.json";
 import gsap from "gsap";
 import AnimatedNumber from "react-animated-number";
+import PageHeading from "../../components/pageHeading";
 
+const skills = [
+    { skillName:"HTML", progress:99 },
+    { skillName:"CSS", progress:97 },
+    { skillName:"Vanilla javascript", progress:95 },
+    { skillName:"React", progress:95 },
+    { skillName:"Node js", progress:96 },
+    { skillName:"Claude AI", progress:90 },
+]
 
+// lottie wants 0-1 rgb
+const PURPLE = [108/255, 55/255, 255/255];  // #6c37ff, as the animation ships
+const BLUE = [27/255, 134/255, 188/255];    // #1B86BC, the site's blue
+
+// The animation's base colour is the one thing about it that is off brand - it
+// is the only purple anywhere on the site. It appears on two layers, so it gets
+// swapped for the site blue on the way in and everything else, counter and all
+// the other colours included, is left exactly as the file ships. Doing it here
+// beats hand editing 289KB of generated json to change one value.
+const recolourBrain = (data) => {
+    const clone = JSON.parse(JSON.stringify(data));
+    const near = (a,b) => Math.abs(a-b) < 0.01;
+
+    const swap = (node) => {
+        if(Array.isArray(node)){
+            node.forEach(swap);
+            return;
+        }
+        if(!node || typeof node !== "object") return;
+
+        Object.keys(node).forEach(key => {
+            const value = node[key];
+            const isColour = key === "c" && value && Array.isArray(value.k) && typeof value.k[0] === "number";
+
+            if(!isColour){
+                swap(value);
+                return;
+            }
+
+            if(near(value.k[0],PURPLE[0]) && near(value.k[1],PURPLE[1]) && near(value.k[2],PURPLE[2])){
+                value.k = [BLUE[0], BLUE[1], BLUE[2], value.k[3] === undefined ? 1 : value.k[3]];
+            }
+        });
+    };
+
+    swap(clone.layers);
+
+    return clone;
+}
 
 const SkillsPage = ()=>{
     const location = useLocation();
-    let lottieRef = useRef(null);
-    let HTMLProgress = useRef(null);
-    let CSSProgress = useRef(null);
-    let vjProgress = useRef(null);
-    let reactProgress = useRef(null);
-    let nodejsProgress = useRef(null);
-    let ShopifyProgress = useRef(null);
-    let ClaudeAIProgress = useRef(null);
+    const lottieRef = useRef(null);
+    const barRefs = useRef([]);
+    barRefs.current = [];
 
-    const skills = [
-        {
-            skillName:"HTML",
-            progress:99,
-            ref:HTMLProgress,
-        },
-        {
-            skillName:"CSS",
-            progress:97,
-            ref:CSSProgress
-        },
-        {
-            skillName:"Vanilla javascript",
-            progress:95,
-            ref:vjProgress
-        },
-        {
-            skillName:"React",
-            progress:95,
-            ref:reactProgress
-        },
-        {
-            skillName:"Node js",
-            progress:96,
-            ref:nodejsProgress
-        },
-        {
-            skillName:"Shopify",
-            progress:80,
-            ref:ShopifyProgress
-        },
-        {
-            skillName:"Claude AI",
-            progress:90,
-            ref:ClaudeAIProgress
-        },
-    ]
+    const addBarRef = (el) => {
+        if(el && !barRefs.current.includes(el)){
+            barRefs.current.push(el)
+        }
+    }
+
     useEffect(()=>{
-        Lottie.loadAnimation({
-            container:lottieRef,
-            animationData:brainLottie,
+        const animation = Lottie.loadAnimation({
+            container: lottieRef.current,
+            animationData: recolourBrain(brainLottie),
             renderer:"svg",
             loop:false,
             autoplay:true
-            
-            
         });
 
-        gsap.from(HTMLProgress.current,{duration:2,width:0,ease:"power3.easeOut"});
-        gsap.from(CSSProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-        gsap.from(vjProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-        gsap.from(reactProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-        gsap.from(nodejsProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-        gsap.from(ShopifyProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
-        gsap.from(ClaudeAIProgress.current,{duration:2,width:0,ease:"power3.easeOut"})
+        gsap.from(barRefs.current,{duration:2,width:0,ease:"power3.easeOut"});
+
+        // without this the animation is rebuilt and stacked on top of itself
+        // every time you navigate back to the page
+        return ()=> animation.destroy();
     },[location])
 
     return(
         <>
             <div className="skills-page-container">
                 <div className="skills-container">
-                    <h1>Skills</h1>
+                    <PageHeading lead="My" accent="Skills"/>
                    {
                        skills.map((el)=>{
                            return(
@@ -95,7 +103,7 @@ const SkillsPage = ()=>{
                                     className="skill-number"/>
                             </div>
                             <div className="skill-bar">
-                                <div className="skill-bar-rect" style={{width:`${el.progress+''}%`}} ref={el.ref}></div>
+                                <div className="skill-bar-rect" style={{width:`${el.progress+''}%`}} ref={addBarRef}></div>
                                 <div className="skill-bar-br br1"></div>
                                 <div className="skill-bar-br br2"></div>
                                 <div className="skill-bar-br br3"></div>
@@ -106,7 +114,7 @@ const SkillsPage = ()=>{
                    }
                     <p id="note">Note: I believe learning is a lifelong process. More skills, coming soon..</p>
                 </div>
-                <div className="skills-image" ref={el=>lottieRef=el}></div>
+                <div className="skills-image" ref={lottieRef}></div>
             </div>
         </>
     )
