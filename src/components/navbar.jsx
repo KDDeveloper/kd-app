@@ -4,6 +4,7 @@ import kdLogo from "../resources/images/kd-webdev-logo.png";
 import { LeftBracket, RightBracket } from "./svgs";
 import { IconButton } from "@mui/material";
 import { Menu, Close } from "@mui/icons-material";
+import { useAppReady } from "./loadingScreen";
 
 const navbarOptions = [
     {
@@ -43,6 +44,11 @@ const Navbar = ()=>{
    let pathName =  location.pathname;
    let [open,setOpen] = useState(false)
 
+    // false until the loading screen has finished leaving. The wait below is
+    // counted from that moment rather than from mount, so the drop in is not
+    // spent behind the overlay.
+    const ready = useAppReady();
+
     // "waiting" holds the menu off screen, "playing" runs the drop in.
     let [introStage,setIntroStage] = useState(INTRO_ANIMATION && pathName==="/" ? "waiting" : "done");
 
@@ -56,7 +62,7 @@ const Navbar = ()=>{
     // are not frozen the same way, so the reveal is driven by a timer and a
     // state change rather than by an animation running to completion.
     useEffect(()=>{
-        if(!INTRO_ANIMATION || pathName!=="/") return;
+        if(!INTRO_ANIMATION || pathName!=="/" || !ready) return;
 
         let onVisible;
 
@@ -83,7 +89,7 @@ const Navbar = ()=>{
             clearTimeout(timer);
             if(onVisible) document.removeEventListener("visibilitychange",onVisible);
         }
-    },[])
+    },[ready])
 
     // The circle is corner anchored rather than full screen, so tapping the page
     // outside it should close it - and Escape should too, since it is a modal

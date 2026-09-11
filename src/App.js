@@ -7,6 +7,7 @@ import HomePage from './pages/homePage/homePage';
 import ProjectsPage from './pages/projectsPage/projectsPage';
 import SkillsPage from './pages/skillsPage/skillsPage';
 import {Helmet} from "react-helmet";
+import LoadingScreen from "./components/loadingScreen";
 function App() {
   
   return (
@@ -15,6 +16,10 @@ function App() {
         <title>KD Web Developer</title>
       </Helmet>
       <Router>
+        {/* Holds the page until the hero photograph, the logo and the
+            webfonts are in, and publishes a ready flag the intro animations
+            start from - see components/loadingScreen.jsx */}
+        <LoadingScreen>
         <Routes>
           // <Route path="/" element={<Navigate to="/kd/home"/>} />
           <Route path="/" element={<Navbar/>} >
@@ -25,6 +30,7 @@ function App() {
             <Route path="contact" element={<ContactPage/>} />
           </Route>
         </Routes>
+        </LoadingScreen>
       </Router>
     </div>
   );
