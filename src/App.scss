@@ -283,8 +283,7 @@ html,body{
   bottom: 13vh;
   list-style: none;
   display: none;
-  // reversed so the first item sits nearest the button it came out of
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: flex-start;
   gap: clamp(24px, 3.4vh, 36px);
   z-index: 99;
